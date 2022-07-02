@@ -9,7 +9,6 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-      <PackageReference Include="NSequenceComparer" Version="0.0.1" />
     </ItemGroup>
 
     <ItemGroup>
