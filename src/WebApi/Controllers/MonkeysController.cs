@@ -9,11 +9,11 @@ namespace WebApi.Controllers
     public class MonkeysController : ControllerBase
     {
         private readonly ILogger<MonkeysController> _logger;
-        private readonly TypewriterService _typewriterService;
+        private readonly MonkeyService _typewriterService;
 
         public MonkeysController(
             ILogger<MonkeysController> logger,
-            TypewriterService typewriterService)
+            MonkeyService typewriterService)
         {
             _logger = logger;
             _typewriterService = typewriterService;
@@ -22,9 +22,9 @@ namespace WebApi.Controllers
         [HttpPost("sync")]
         public async Task<IActionResult> RunSynchronously(RequestModel request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Received request for {MonkeyCount} monkeys to find \"{TargetText}\" in {Timeout}.", request.MonkeyCount, request.TargetText, request.Timeout);
+            _logger.LogInformation("Received request for {MonkeyCount} monkeys to find '{TargetText}' in {Timeout}.", request.MonkeyCount, request.TargetText, request.Timeout);
 
-            var result = await _typewriterService.Engage(request, cancellationToken);
+            var result = await _typewriterService.ProcessRequest(request, cancellationToken);
 
             return Ok(result);
         }

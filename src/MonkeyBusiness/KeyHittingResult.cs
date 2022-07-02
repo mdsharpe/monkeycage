@@ -2,16 +2,16 @@
 {
     public class KeyHittingResult
     {
-        public KeyHittingResult(string targetText, string textFound, int keysHit)
+        public KeyHittingResult(string targetText, string textFound, int keyPresses)
         {
             TargetText = targetText;
             TextFound = textFound;
-            KeysHit = keysHit;
+            KeyPresses = keyPresses;
         }
 
         public string TargetText { get; }
         public string TextFound { get; }
-        public int KeysHit { get; }
+        public int KeyPresses { get; }
 
         public bool IsSuccess
         {
