@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
 using MonkeyCage.Models;
 
@@ -7,13 +8,16 @@ namespace MonkeyCage.MonkeyBusiness
     public class MonkeyService
     {
         private readonly ILogger<MonkeyService> _logger;
+        private readonly TelemetryClient _telemetryClient;
         private readonly MonkeyFactory _monkeyFactory;
 
         public MonkeyService(
             ILogger<MonkeyService> logger,
+            TelemetryClient telemetryClient,
             MonkeyFactory monkeyFactory)
         {
             _logger = logger;
+            _telemetryClient = telemetryClient;
             _monkeyFactory = monkeyFactory;
         }
 
@@ -80,12 +84,23 @@ namespace MonkeyCage.MonkeyBusiness
             if (results.Any())
             {
                 _logger.LogInformation(
-                    "{MonkeyCount} monkeys found '{FoundText}' of '{NormalizedTargetText}' with {TotalKeyPressCount} key presses after {ElapsedTime}.",
+                    "{MonkeyCount} monkeys found '{BestFoundText}' of '{NormalizedTargetText}' with {TotalKeyPressCount} key presses after {ElapsedTime}.",
                     request.MonkeyCount,
                     results.First().TextFound,
                     request.TargetText,
                     results.Sum(o => o.KeyPresses),
                     stopWatch.Elapsed);
+
+                _telemetryClient.TrackEvent(
+                    "RequestCompleted",
+                    new Dictionary<string, string>
+                    {
+                        { "MonkeyCount", request.MonkeyCount.ToString() },
+                        { "TargetText", request.TargetText },
+                        { "BestFoundText", results.First().TextFound },
+                        { "TotalKeyPressCount", results.Sum(o => o.KeyPresses).ToString() },
+                        { "ElapsedTime", stopWatch.Elapsed.ToString() }
+                    });
             }
 
             return results;
