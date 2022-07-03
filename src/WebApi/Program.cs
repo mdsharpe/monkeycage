@@ -2,6 +2,13 @@ using MonkeyCage.MonkeyBusiness;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging
+    .ClearProviders()
+    .AddConsole()
+    .AddDebug()
+    .AddApplicationInsights()
+    .AddAzureWebAppDiagnostics();
+
 // Add services to the container.
 
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
