@@ -49,7 +49,7 @@ namespace MonkeyCage.MonkeyBusiness
 
         public Monkey Create()
             => new Monkey(
-                _serviceProvider.GetService<ILogger<Monkey>>(),
+                _serviceProvider.GetService<ILogger<Monkey>>()!,
                 GetNextName(),
                 KnownCharacters);
 
