@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Internal;
 using MonkeyCage.MonkeyBusiness;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services
-    .AddSingleton<ISystemClock, SystemClock>()
     .AddTransient<MonkeyFactory>()
     .AddTransient<MonkeyService>();
 

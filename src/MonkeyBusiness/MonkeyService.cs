@@ -16,7 +16,7 @@ namespace MonkeyCage.MonkeyBusiness
             _monkeyFactory = monkeyFactory;
         }
 
-        public async Task<KeyHittingResult> ProcessRequest(RequestModel request, CancellationToken cancellationToken)
+        public async Task<KeyHittingResult[]> ProcessRequest(RequestModel request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting {MonkeyCount} monkeys to find '{TargetText}' in {Timeout}.", request.MonkeyCount, request.TargetText, request.Timeout);
 
@@ -58,24 +58,10 @@ namespace MonkeyCage.MonkeyBusiness
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var results = tasks.Select(o => o.Task.Result);
-
-            return GetBestResult(results);
-        }
-
-        private KeyHittingResult GetBestResult(IEnumerable<KeyHittingResult> results)
-        {
-            var best = new KeyHittingResult(string.Empty, string.Empty, 0);
-
-            foreach (var result in results)
-            {
-                if (result.TextFound.Length > best.TextFound.Length)
-                {
-                    best = result;
-                }
-            }
-
-            return best;
+            return tasks.Select(o => o.Task.Result)
+                .OrderByDescending(o => o.IsSuccess)
+                .ThenBy(o => o.TextFound.Length)
+                .ToArray();
         }
     }
 }

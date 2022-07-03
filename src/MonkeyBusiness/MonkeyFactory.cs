@@ -1,13 +1,12 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace MonkeyCage.MonkeyBusiness
 {
     public class MonkeyFactory
     {
-        private static readonly ImmutableArray<char> KnownCharacters = "abcdefghijklmnopqrstuvwxyz".ToImmutableArray();
+        private static readonly ImmutableArray<char> KnownCharacters = "abcdefghijklmnopqrstuvwxyz ".ToImmutableArray();
 
         private static readonly ImmutableArray<string> Names = new[]
         {
@@ -49,13 +48,10 @@ namespace MonkeyCage.MonkeyBusiness
         }
 
         public Monkey Create()
-        {
-            return new Monkey(
+            => new Monkey(
                 _serviceProvider.GetService<ILogger<Monkey>>(),
                 GetNextName(),
-                KnownCharacters,
-                _serviceProvider.GetService<ISystemClock>());
-        }
+                KnownCharacters);
 
         private static string GetNextName()
         {

@@ -1,26 +1,24 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace MonkeyCage.MonkeyBusiness
 {
     public class Monkey
     {
+        private static readonly int BufMaxLength = 10000;
+
         private readonly ILogger<Monkey> _logger;
         private readonly ImmutableArray<char> _knownCharacters;
-        private readonly ISystemClock _clock;
 
         public Monkey(
             ILogger<Monkey> logger,
             string name,
-            IEnumerable<char> knownCharacters,
-            ISystemClock clock)
+            IEnumerable<char> knownCharacters)
         {
             _logger = logger;
             Name = name;
             _knownCharacters = knownCharacters.ToImmutableArray();
-            _clock = clock;
         }
 
         public string Name { get; }
@@ -38,42 +36,60 @@ namespace MonkeyCage.MonkeyBusiness
 
             var buf = new StringBuilder();
             var lcs = string.Empty;
-            var lastCheckTime = _clock.UtcNow;
+            var lcsBest = string.Empty;
+            var targetFound = false;
+            var totalCharsTypedCount = 0;
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 buf.Append(_knownCharacters[Random.Shared.Next(_knownCharacters.Length)]);
 
-                if (_clock.UtcNow.Subtract(lastCheckTime) >= TimeSpan.FromSeconds(5))
+                if (buf.Length >= BufMaxLength)
                 {
-                    lcs = GetLongestCommonSubstring(targetText, buf);
+                    var charsTyped = buf.ToString();
+                    totalCharsTypedCount += buf.Length;
+                    buf.Length = 0;
+
+                    lcs = GetLongestCommonSubstring(targetText, charsTyped);
+                    lcsBest = lcs.Length > lcsBest.Length ? lcs : lcsBest;
 
                     if (lcs.Equals(targetText, StringComparison.OrdinalIgnoreCase))
                     {
                         _logger.LogDebug("{MonkeyName} found the target text!", Name);
+                        targetFound = true;
                         break;
                     }
 
-                    lastCheckTime = _clock.UtcNow;
+                    var lcsIndex = charsTyped.LastIndexOf(lcs, StringComparison.OrdinalIgnoreCase);
+
+                    if (lcsIndex == charsTyped.Length - lcs.Length)
+                    {
+                        buf.Append(lcs);
+                    }
                 }
             }
+            
+            totalCharsTypedCount += buf.Length;
 
-            lcs = GetLongestCommonSubstring(targetText, buf);
+            if (!targetFound)
+            {
+                lcs = GetLongestCommonSubstring(targetText, buf.ToString());
+                lcsBest = lcs.Length > lcsBest.Length ? lcs : lcsBest;
+            }
 
             _logger.LogDebug("{MonkeyName} found '{FoundText}' of '{NormalizedTargetText}' after {KeyPressCount} key presses.",
                 Name,
-                lcs,
+                lcsBest,
                 targetText,
-                buf.Length);
+                totalCharsTypedCount);
 
-            return new KeyHittingResult(targetText, lcs, buf.Length);
+            return new KeyHittingResult(targetText, lcsBest, totalCharsTypedCount);
         }
 
-        // TODO This takes way too long when charsTyped gets large
         /// <summary>
         /// Adapted from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#Retrieve_the_Longest_Substring
         /// </summary>
-        private string GetLongestCommonSubstring(string targetText, StringBuilder charsTyped)
+        private string GetLongestCommonSubstring(string targetText, string charsTyped)
         {
             if (string.IsNullOrEmpty(targetText) || charsTyped.Length == 0)
             {
