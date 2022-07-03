@@ -38,7 +38,7 @@ namespace MonkeyCage.MonkeyBusiness
             var lcs = string.Empty;
             var lcsBest = string.Empty;
             var targetFound = false;
-            var totalCharsTypedCount = 0;
+            var totalCharsTypedCount = 0L;
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -77,7 +77,8 @@ namespace MonkeyCage.MonkeyBusiness
                 lcsBest = lcs.Length > lcsBest.Length ? lcs : lcsBest;
             }
 
-            _logger.LogDebug("{MonkeyName} found '{FoundText}' of '{NormalizedTargetText}' after {KeyPressCount} key presses.",
+            _logger.LogDebug(
+                "{MonkeyName} found '{FoundText}' of '{NormalizedTargetText}' after {KeyPressCount} key presses.",
                 Name,
                 lcsBest,
                 targetText,

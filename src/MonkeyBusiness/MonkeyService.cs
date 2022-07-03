@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using MonkeyCage.Models;
 
 namespace MonkeyCage.MonkeyBusiness
@@ -18,6 +19,8 @@ namespace MonkeyCage.MonkeyBusiness
 
         public async Task<KeyHittingResult[]> ProcessRequest(RequestModel request, CancellationToken cancellationToken)
         {
+            var stopWatch = new Stopwatch();
+
             _logger.LogInformation("Starting {MonkeyCount} monkeys to find '{TargetText}' in {Timeout}.", request.MonkeyCount, request.TargetText, request.Timeout);
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -27,7 +30,7 @@ namespace MonkeyCage.MonkeyBusiness
                 .Select(_ => _monkeyFactory.Create())
                 .ToArray();
 
-            _logger.LogDebug("{MonkeyCount} monkeys created.", request.MonkeyCount);
+            stopWatch.Start();
 
             var tasks = monkeys
                 .Select(o => new
@@ -56,12 +59,36 @@ namespace MonkeyCage.MonkeyBusiness
                 runningTasks.Remove(completedTask);
             }
 
+            stopWatch.Stop();
+
             cancellationToken.ThrowIfCancellationRequested();
 
-            return tasks.Select(o => o.Task.Result)
+            var results = tasks.Select(o => o.Task.Result)
                 .OrderByDescending(o => o.IsSuccess)
                 .ThenBy(o => o.TextFound.Length)
                 .ToArray();
+
+            if (!results.Any(o => o.IsSuccess))
+            {
+                _logger.LogWarning(
+                    "{MonkeyCount} monkeys could not find '{TargetText}' after {ElapsedTime}.",
+                    request.MonkeyCount,
+                    request.TargetText,
+                    stopWatch.Elapsed);
+            }
+
+            if (results.Any())
+            {
+                _logger.LogInformation(
+                    "{MonkeyCount} monkeys found '{FoundText}' of '{NormalizedTargetText}' with {TotalKeyPressCount} key presses after {ElapsedTime}.",
+                    request.MonkeyCount,
+                    results.First().TextFound,
+                    request.TargetText,
+                    results.Sum(o => o.KeyPresses),
+                    stopWatch.Elapsed);
+            }
+
+            return results;
         }
     }
 }
