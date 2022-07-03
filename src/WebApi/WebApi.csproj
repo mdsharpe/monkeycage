@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>MonkeyCage.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+        <ApplicationInsightsResourceId>/subscriptions/cb9c5841-1689-4985-8f09-3b7abe787e99/resourceGroups/rg-monkeycage-prod-uksouth-001/providers/microsoft.insights/components/appi-monkeycage-prod-uksouth-001</ApplicationInsightsResourceId>
         <UserSecretsId>eb3559da-f711-4ec4-bacc-383ada9ede9f</UserSecretsId>
     </PropertyGroup>
 

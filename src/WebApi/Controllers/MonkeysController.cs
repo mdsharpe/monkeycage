@@ -4,7 +4,7 @@ using MonkeyCage.MonkeyBusiness;
 
 namespace WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class MonkeysController : ControllerBase
     {
@@ -19,8 +19,8 @@ namespace WebApi.Controllers
             _typewriterService = typewriterService;
         }
 
-        [HttpPost("sync")]
-        public async Task<IActionResult> RunSynchronously(RequestModel request, CancellationToken cancellationToken)
+        [HttpPost("inprocess")]
+        public async Task<IActionResult> RunInProcess(RequestModel request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Received request for {MonkeyCount} monkeys to find '{TargetText}' in {Timeout}.", request.MonkeyCount, request.TargetText, request.Timeout);
 
