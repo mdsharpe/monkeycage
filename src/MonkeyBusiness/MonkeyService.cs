@@ -69,7 +69,7 @@ namespace MonkeyCage.MonkeyBusiness
 
             var results = tasks.Select(o => o.Task.Result)
                 .OrderByDescending(o => o.IsSuccess)
-                .ThenBy(o => o.TextFound.Length)
+                .ThenByDescending(o => o.TextFound.Length)
                 .ToArray();
 
             if (!results.Any(o => o.IsSuccess))
