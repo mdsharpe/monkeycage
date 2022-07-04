@@ -1,4 +1,4 @@
-﻿namespace MonkeyCage.MonkeyBusiness
+﻿namespace MonkeyCage.Models
 {
     public class KeyHittingResult
     {

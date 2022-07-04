@@ -17,7 +17,8 @@ builder.Services.AddControllers();
 
 builder.Services
     .AddTransient<MonkeyFactory>()
-    .AddTransient<MonkeyService>();
+    .AddTransient<MonkeyService>()
+    .AddTransient<ResultPersistenceService>();
 
 var app = builder.Build();
 

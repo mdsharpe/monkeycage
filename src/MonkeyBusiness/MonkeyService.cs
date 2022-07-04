@@ -10,19 +10,28 @@ namespace MonkeyCage.MonkeyBusiness
         private readonly ILogger<MonkeyService> _logger;
         private readonly TelemetryClient _telemetryClient;
         private readonly MonkeyFactory _monkeyFactory;
+        private readonly ResultPersistenceService _resultPersistenceService;
 
         public MonkeyService(
             ILogger<MonkeyService> logger,
             TelemetryClient telemetryClient,
-            MonkeyFactory monkeyFactory)
+            MonkeyFactory monkeyFactory,
+            ResultPersistenceService resultPersistenceService)
         {
             _logger = logger;
             _telemetryClient = telemetryClient;
             _monkeyFactory = monkeyFactory;
+            _resultPersistenceService = resultPersistenceService;
         }
 
         public async Task<KeyHittingResult[]> ProcessRequest(RequestModel request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(request.TargetText))
+            {
+                _logger.LogInformation("Target text is null or empty; no monkey business required.");
+                return Array.Empty<KeyHittingResult>();
+            }
+
             var stopWatch = new Stopwatch();
 
             _logger.LogInformation("Starting {MonkeyCount} monkeys to find '{TargetText}' in {Timeout}.", request.MonkeyCount, request.TargetText, request.Timeout);
@@ -101,6 +110,12 @@ namespace MonkeyCage.MonkeyBusiness
                         { "TotalKeyPressCount", results.Sum(o => o.KeyPresses).ToString() },
                         { "ElapsedTime", stopWatch.Elapsed.ToString() }
                     });
+
+                if (request.SaveToDatabase)
+                {
+                    _logger.LogDebug("Request requires result to be saved to database.");
+                    await _resultPersistenceService.SaveResultToDatabase(results);
+                }
             }
 
             return results;

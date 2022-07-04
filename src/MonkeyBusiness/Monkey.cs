@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using MonkeyCage.Models;
 
 namespace MonkeyCage.MonkeyBusiness
 {
@@ -90,7 +91,7 @@ namespace MonkeyCage.MonkeyBusiness
         /// <summary>
         /// Adapted from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#Retrieve_the_Longest_Substring
         /// </summary>
-        private string GetLongestCommonSubstring(string targetText, string charsTyped)
+        private static string GetLongestCommonSubstring(string targetText, string charsTyped)
         {
             if (string.IsNullOrEmpty(targetText) || charsTyped.Length == 0)
             {
@@ -134,7 +135,7 @@ namespace MonkeyCage.MonkeyBusiness
                             {
                                 lastSubsBegin = thisSubsBegin;
                                 result.Length = 0;
-                                result.Append(targetText.Substring(lastSubsBegin, (i + 1) - lastSubsBegin));
+                                result.Append(targetText[lastSubsBegin..(i + 1)]);
                             }
                         }
                     }
