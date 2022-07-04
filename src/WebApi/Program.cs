@@ -16,6 +16,7 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICAT
 builder.Services.AddControllers();
 
 builder.Services
+    .AddHttpClient()
     .AddTransient<MonkeyFactory>()
     .AddTransient<MonkeyService>()
     .AddTransient<ResultPersistenceService>();

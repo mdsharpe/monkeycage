@@ -9,17 +9,20 @@ namespace MonkeyCage.MonkeyBusiness
     {
         private readonly ILogger<MonkeyService> _logger;
         private readonly TelemetryClient _telemetryClient;
+        private readonly HttpClient _httpClient;
         private readonly MonkeyFactory _monkeyFactory;
         private readonly ResultPersistenceService _resultPersistenceService;
 
         public MonkeyService(
             ILogger<MonkeyService> logger,
             TelemetryClient telemetryClient,
+            HttpClient httpClient,
             MonkeyFactory monkeyFactory,
             ResultPersistenceService resultPersistenceService)
         {
             _logger = logger;
             _telemetryClient = telemetryClient;
+            this._httpClient = httpClient;
             _monkeyFactory = monkeyFactory;
             _resultPersistenceService = resultPersistenceService;
         }
@@ -30,6 +33,12 @@ namespace MonkeyCage.MonkeyBusiness
             {
                 _logger.LogInformation("Target text is null or empty; no monkey business required.");
                 return Array.Empty<KeyHittingResult>();
+            }
+
+            if (request.GetInspiration)
+            {
+                _logger.LogDebug("Getting inspiration from The Bard.");
+                _ = await _httpClient.GetByteArrayAsync("https://stmonkeycageprod001.blob.core.windows.net/images/shakespeare.jpg", cancellationToken);
             }
 
             var stopWatch = new Stopwatch();
@@ -114,7 +123,7 @@ namespace MonkeyCage.MonkeyBusiness
                 if (request.SaveToDatabase)
                 {
                     _logger.LogDebug("Request requires result to be saved to database.");
-                    await _resultPersistenceService.SaveResultToDatabase(results);
+                    await _resultPersistenceService.SaveResultToDatabase(results, cancellationToken);
                 }
             }
 

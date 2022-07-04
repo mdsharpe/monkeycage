@@ -5,6 +5,7 @@
         public string? TargetText { get; set; }
         public TimeSpan Timeout { get; set; }
         public int MonkeyCount { get; set; }
+        public bool GetInspiration { get; set; }
         public bool SaveToDatabase { get; set; }
     }
 }

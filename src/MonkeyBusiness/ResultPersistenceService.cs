@@ -13,13 +13,13 @@ namespace MonkeyCage.MonkeyBusiness
             _logger = logger;
         }
 
-        public async Task SaveResultToDatabase(ICollection<KeyHittingResult> results)
+        public async Task SaveResultToDatabase(ICollection<KeyHittingResult> _, CancellationToken cancellationToken)
         {
             _logger.LogDebug("Opening database connection...");
 
             using var connection = new SqlConnection("Data Source=missing.invalid;Connection Timeout=5");
             
-            await connection.OpenAsync();
+            await connection.OpenAsync(cancellationToken);
         }
     }
 }
