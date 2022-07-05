@@ -110,7 +110,7 @@ namespace MonkeyCage.MonkeyBusiness
                     stopWatch.Elapsed);
 
                 _telemetryClient.TrackEvent(
-                    "RequestCompleted",
+                    "MonkeyBusinessAccomplished",
                     new Dictionary<string, string>
                     {
                         { "MonkeyCount", request.MonkeyCount.ToString() },
